@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from stable_baselines3 import PPO
 from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
@@ -8,6 +9,28 @@ from finrl.config import INDICATORS
 
 #환경설정
 TARGET_TICKER = ["AAPL"]
+CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
+FINAL_MODEL_PATH = "ppo_model"
+INITIAL_MODEL_PATH = "initial_ppo_model"
+
+
+def load_existing_model(env_train):
+    candidate_paths = [
+        CHECKPOINT_MODEL_PATH,
+        f"{CHECKPOINT_MODEL_PATH}.zip",
+        INITIAL_MODEL_PATH,
+        f"{INITIAL_MODEL_PATH}.zip",
+    ]
+
+    for candidate in candidate_paths:
+        if os.path.exists(candidate):
+            print(f"저장된 모델을 불러옵니다: {candidate}")
+            return PPO.load(candidate, env=env_train)
+
+    raise FileNotFoundError(
+        "학습된 모델 파일이 없습니다. 먼저 model.py를 실행해 초기 모델을 생성해주세요."
+    )
+
 custom_indicators = INDICATORS + ["foreigner_net", "news_sentiment"]
 stock_dimension = len(TARGET_TICKER)
 state_space = 1 + 2 * stock_dimension + len(custom_indicators) * stock_dimension
@@ -72,8 +95,8 @@ TARGET_RETURN_CUTLINE = 5.0
 is_passed = False
 attempt_count = 1
 
-print("\n기본 모델('initial_ppo_model.zip')을 불러옵니다...")
-current_model = PPO.load("initial_ppo_model", env=env_train)
+print("\n저장된 모델을 확인한 뒤 이어서 학습합니다...")
+current_model = load_existing_model(env_train)
 
 while not is_passed:
     print("\n--------------------------------------------------")
@@ -90,14 +113,17 @@ while not is_passed:
 
     if total_return >= TARGET_RETURN_CUTLINE:
         print(f"[합격] 목표 수익률({TARGET_RETURN_CUTLINE}%)을 달성")
-        current_model.save("ppo_model")
-        print("최종 모델이 'finrl_perfect_model.zip'으로 저장")
+        current_model.save(FINAL_MODEL_PATH)
+        current_model.save(CHECKPOINT_MODEL_PATH)
+        print(f"최종 모델이 '{FINAL_MODEL_PATH}.zip'으로 저장되었습니다.")
         is_passed = True
     else:
         print(f"[불합격] 성능이 기준치({TARGET_RETURN_CUTLINE}%)에 미달했습니다.")
         additional_steps = 10000 * attempt_count
         print(f"재학습: {additional_steps}번 더 강화학습")
         current_model.learn(total_timesteps=additional_steps, reset_num_timesteps=False)
+        current_model.save(CHECKPOINT_MODEL_PATH)
+        print(f"재학습 체크포인트가 '{CHECKPOINT_MODEL_PATH}.zip'로 자동 저장되었습니다.")
         attempt_count += 1
 
 print("\n강화학습 완!")

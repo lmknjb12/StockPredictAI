@@ -6,6 +6,10 @@ from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
 
+# 모델 저장 경로
+INITIAL_MODEL_PATH = "initial_ppo_model"
+CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
+
 # 종목 및 지표 정의
 TARGET_TICKER = ["AAPL"]
 custom_indicators = INDICATORS + ["foreigner_net", "news_sentiment"]
@@ -62,5 +66,6 @@ trained_ppo = agent.train_model(
 )
 
 # 최초 가중치 파일 저장
-trained_ppo.save("ppo_model")
-print("모델 생성 됨")
+trained_ppo.save(INITIAL_MODEL_PATH)
+trained_ppo.save(CHECKPOINT_MODEL_PATH)
+print(f"모델 생성 완료: {INITIAL_MODEL_PATH}.zip, {CHECKPOINT_MODEL_PATH}.zip")
