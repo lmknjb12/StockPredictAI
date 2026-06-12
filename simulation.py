@@ -25,7 +25,9 @@ def load_existing_model(env_train):
     for candidate in candidate_paths:
         if os.path.exists(candidate):
             print(f"저장된 모델을 불러옵니다: {candidate}")
-            return PPO.load(candidate, env=env_train)
+            loaded_model = PPO.load(candidate, env=env_train)
+            loaded_model.verbose = 0
+            return loaded_model
 
     raise FileNotFoundError(
         "학습된 모델 파일이 없습니다. 먼저 model.py를 실행해 초기 모델을 생성해주세요."
@@ -50,8 +52,8 @@ env_kwargs = {
 
 print("[데이터 준비] 최신 주가 및 매매동향 수집")
 df_test = load_market_data(
-    start_date="2020-01-01",
-    end_date="2020-06-11",
+    start_date="2026-01-01",
+    end_date="2026-06-11",
     ticker_list=TARGET_TICKER,
 )
 
@@ -88,9 +90,7 @@ print("\n저장된 모델을 확인한 뒤 이어서 학습합니다...")
 current_model = load_existing_model(env_train)
 
 while not is_passed:
-    print("\n--------------------------------------------------")
-    print(f"[시도 회차: {attempt_count}차] AI 성능분석")
-    print("--------------------------------------------------")
+    print(f"학습 횟수: {attempt_count}차")
 
     account_memory, _ = DRLAgent.DRL_prediction(model=current_model, environment=e_test_gym)
 
@@ -98,21 +98,15 @@ while not is_passed:
     final_asset = account_memory["account_value"].iloc[-1]
     total_return = ((final_asset - initial_asset) / initial_asset) * 100
 
-    print(f"현재 AI 수익률: {total_return:.2f}%")
-
     if total_return >= TARGET_RETURN_CUTLINE:
-        print(f"[합격] 목표 수익률({TARGET_RETURN_CUTLINE}%)을 달성")
         current_model.save(FINAL_MODEL_PATH)
         current_model.save(CHECKPOINT_MODEL_PATH)
         print(f"최종 모델이 '{FINAL_MODEL_PATH}.zip'으로 저장되었습니다.")
         is_passed = True
     else:
-        print(f"[불합격] 성능이 기준치({TARGET_RETURN_CUTLINE}%)에 미달했습니다.")
         additional_steps = 10000 * attempt_count
-        print(f"재학습: {additional_steps}번 더 강화학습")
-        current_model.learn(total_timesteps=additional_steps, reset_num_timesteps=False)
+        current_model.learn(total_timesteps=additional_steps, reset_num_timesteps=False, progress_bar=False)
         current_model.save(CHECKPOINT_MODEL_PATH)
-        print(f"재학습 체크포인트가 '{CHECKPOINT_MODEL_PATH}.zip'로 자동 저장되었습니다.")
         attempt_count += 1
 
 print("\n강화학습 완!")
