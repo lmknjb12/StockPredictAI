@@ -54,8 +54,8 @@ env_kwargs = {
 
 print("[데이터 준비] 최신 주가 및 매매동향 수집")
 df_test = load_market_data(
-    start_date="2022-01-01",
-    end_date="2022-06-11",
+    start_date="2026-01-01",
+    end_date="2026-06-11",
     ticker_list=TARGET_TICKER,
 )
 
@@ -84,7 +84,7 @@ e_train_gym = StockTradingEnv(df=processed_train, **env_kwargs)
 env_train, _ = e_train_gym.get_sb_env()
 
 # 강화학습
-TARGET_RETURN_CUTLINE = 5.0
+TARGET_RETURN_CUTLINE = 100
 is_passed = False
 attempt_count = 1
 
