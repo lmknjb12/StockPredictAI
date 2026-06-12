@@ -50,8 +50,8 @@ env_kwargs = {
 
 print("[데이터 준비] 최신 주가 및 매매동향 수집")
 df_test = load_market_data(
-    start_date="2026-01-01",
-    end_date="2026-06-11",
+    start_date="2020-01-01",
+    end_date="2020-06-11",
     ticker_list=TARGET_TICKER,
 )
 
