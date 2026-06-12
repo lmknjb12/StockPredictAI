@@ -1,18 +1,17 @@
-import numpy as np
-import pandas as pd
-from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
+
+from data_utils import PYKRX_FEATURES, load_market_data
 
 # 모델 저장 경로
 INITIAL_MODEL_PATH = "initial_ppo_model"
 CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
 
 # 종목 및 지표 정의
-TARGET_TICKER = ["AAPL"]
-custom_indicators = INDICATORS + ["foreigner_net", "news_sentiment"]
+TARGET_TICKER = ["005930"]
+custom_indicators = INDICATORS + PYKRX_FEATURES
 stock_dimension = len(TARGET_TICKER)
 state_space = 1 + 2 * stock_dimension + len(custom_indicators) * stock_dimension
 
@@ -29,20 +28,13 @@ env_kwargs = {
     "tech_indicator_list": custom_indicators
 }
 
-# 과거 주가 수집 (2024년 ~ 2026년)
-print("과거 주가데이터 수집")
-df_train = YahooDownloader(
-    start_date="2024-01-01", 
-    end_date="2026-01-01", 
-    ticker_list=TARGET_TICKER
-).fetch_data()
+print("과거 주가 및 매매동향 데이터 수집")
+df_train = load_market_data(
+    start_date="2024-01-01",
+    end_date="2026-01-01",
+    ticker_list=TARGET_TICKER,
+)
 print(df_train.columns.tolist())
-df_train = df_train.sort_values(['date', 'tic']).reset_index(drop=True)
-
-# 가상의 외부 데이터 결합
-np.random.seed(42)
-df_train["foreigner_net"] = np.random.uniform(-5000, 5000, size=len(df_train))
-df_train["news_sentiment"] = np.random.uniform(-1.0, 1.0, size=len(df_train))
 
 # 보조지표 가공
 fe = FeatureEngineer(

@@ -1,16 +1,16 @@
 import os
-import numpy as np
 from stable_baselines3 import PPO
-from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
 
+from data_utils import PYKRX_FEATURES, load_market_data
+
 #환경설정
-TARGET_TICKER = ["AAPL"]
+TARGET_TICKER = ["005930"]
 CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
-FINAL_MODEL_PATH = "ppo_model"
+FINAL_MODEL_PATH = "final_ppo_model"
 INITIAL_MODEL_PATH = "initial_ppo_model"
 
 
@@ -31,7 +31,7 @@ def load_existing_model(env_train):
         "학습된 모델 파일이 없습니다. 먼저 model.py를 실행해 초기 모델을 생성해주세요."
     )
 
-custom_indicators = INDICATORS + ["foreigner_net", "news_sentiment"]
+custom_indicators = INDICATORS + PYKRX_FEATURES
 stock_dimension = len(TARGET_TICKER)
 state_space = 1 + 2 * stock_dimension + len(custom_indicators) * stock_dimension
 
@@ -48,18 +48,12 @@ env_kwargs = {
     "tech_indicator_list": custom_indicators,
 }
 
-#최근 주가 수집 및 전처리
-print("[데이터 준비] 최신 주가 수집")
-df_test = YahooDownloader(
+print("[데이터 준비] 최신 주가 및 매매동향 수집")
+df_test = load_market_data(
     start_date="2026-01-01",
     end_date="2026-06-11",
     ticker_list=TARGET_TICKER,
-).fetch_data()
-
-df_test = df_test.sort_values(["date", "tic"]).reset_index(drop=True)
-np.random.seed(100)  # 시험 데이터용 가상 변수 생성
-df_test["foreigner_net"] = np.random.uniform(-5000, 5000, size=len(df_test))
-df_test["news_sentiment"] = np.random.uniform(-1.0, 1.0, size=len(df_test))
+)
 
 fe = FeatureEngineer(
     use_technical_indicator=True,
@@ -74,17 +68,12 @@ processed_test = fe.preprocess_data(df_test)
 e_test_gym = StockTradingEnv(df=processed_test, **env_kwargs)
 env_test, _ = e_test_gym.get_sb_env()
 
-# 훈련용 환경도 다시 재학습할 때를 위해 대기 세팅
-df_train = YahooDownloader(
+df_train = load_market_data(
     start_date="2024-01-01",
     end_date="2026-01-01",
     ticker_list=TARGET_TICKER,
-).fetch_data()
+)
 print(df_train.columns.tolist())
-df_train = df_train.sort_values(["date", "tic"]).reset_index(drop=True)
-np.random.seed(42)
-df_train["foreigner_net"] = np.random.uniform(-5000, 5000, size=len(df_train))
-df_train["news_sentiment"] = np.random.uniform(-1.0, 1.0, size=len(df_train))
 processed_train = fe.preprocess_data(df_train)
 
 e_train_gym = StockTradingEnv(df=processed_train, **env_kwargs)
