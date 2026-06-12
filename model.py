@@ -6,9 +6,7 @@ from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
 
-# ===================================================
-# [공통 설정] 종목 및 지표 정의
-# ===================================================
+# 종목 및 지표 정의
 TARGET_TICKER = ["AAPL"]
 custom_indicators = INDICATORS + ["foreigner_net", "news_sentiment"]
 stock_dimension = len(TARGET_TICKER)
@@ -27,8 +25,8 @@ env_kwargs = {
     "tech_indicator_list": custom_indicators
 }
 
-# 1. 훈련용 과거 데이터 수집 (2024년 ~ 2026년)
-print("1. [교과서 데이터] 훈련용 과거 주가 다운로드 중...")
+# 과거 주가 수집 (2024년 ~ 2026년)
+print("과거 주가데이터 수집")
 df_train = YahooDownloader(
     start_date="2024-01-01", 
     end_date="2026-01-01", 
@@ -54,7 +52,7 @@ e_train_gym = StockTradingEnv(df=processed_train, **env_kwargs)
 env_train, _ = e_train_gym.get_sb_env()
 
 # 3. 최초 모델 생성 및 훈련
-print("2. [강화학습] 초기 모델 기본 훈련 개시 (30,000 타임스텝)...")
+print("강화학습")
 agent = DRLAgent(env=env_train)
 model_ppo = agent.get_model("ppo")
 trained_ppo = agent.train_model(
@@ -64,5 +62,5 @@ trained_ppo = agent.train_model(
 )
 
 # 최초 가중치 파일 저장
-trained_ppo.save("initial_ppo_model")
-print("▶ [성공] 최초 기본 모델이 'initial_ppo_model.zip'으로 생성되었습니다.")
+trained_ppo.save("ppo_model")
+print("모델 생성 됨")

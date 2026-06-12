@@ -90,7 +90,7 @@ while not is_passed:
 
     if total_return >= TARGET_RETURN_CUTLINE:
         print(f"[합격] 목표 수익률({TARGET_RETURN_CUTLINE}%)을 달성")
-        current_model.save("finrl_perfect_model")
+        current_model.save("ppo_model")
         print("최종 모델이 'finrl_perfect_model.zip'으로 저장")
         is_passed = True
     else:
