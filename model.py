@@ -34,8 +34,8 @@ df_train = YahooDownloader(
     end_date="2026-01-01", 
     ticker_list=TARGET_TICKER
 ).fetch_data()
-
-df_train = df_train.sort_values(['date', 'ticker']).reset_index(drop=True)
+print(df_train.columns.tolist())
+df_train = df_train.sort_values(['date', 'tic']).reset_index(drop=True)
 
 # 가상의 외부 데이터 결합
 np.random.seed(42)
@@ -57,7 +57,11 @@ env_train, _ = e_train_gym.get_sb_env()
 print("2. [강화학습] 초기 모델 기본 훈련 개시 (30,000 타임스텝)...")
 agent = DRLAgent(env=env_train)
 model_ppo = agent.get_model("ppo")
-trained_ppo = agent.train_model(model=model_ppo, tb_log_dir="./tensorboard_logs/", total_timesteps=30000)
+trained_ppo = agent.train_model(
+    model=model_ppo,
+    tb_log_name="ppo",
+    total_timesteps=30000
+)
 
 # 최초 가중치 파일 저장
 trained_ppo.save("initial_ppo_model")
