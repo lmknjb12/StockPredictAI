@@ -12,6 +12,8 @@ TARGET_TICKER = ["005930"]
 CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
 FINAL_MODEL_PATH = "final_ppo_model"
 INITIAL_MODEL_PATH = "initial_ppo_model"
+TRAIN_START_DATE = "1900-01-01"
+TRAIN_END_DATE = "2026-01-01"
 
 
 def load_existing_model(env_train):
@@ -52,8 +54,8 @@ env_kwargs = {
 
 print("[데이터 준비] 최신 주가 및 매매동향 수집")
 df_test = load_market_data(
-    start_date="2026-01-01",
-    end_date="2026-06-11",
+    start_date="2022-01-01",
+    end_date="2022-06-11",
     ticker_list=TARGET_TICKER,
 )
 
@@ -71,8 +73,8 @@ e_test_gym = StockTradingEnv(df=processed_test, **env_kwargs)
 env_test, _ = e_test_gym.get_sb_env()
 
 df_train = load_market_data(
-    start_date="2024-01-01",
-    end_date="2026-01-01",
+    start_date=TRAIN_START_DATE,
+    end_date=TRAIN_END_DATE,
     ticker_list=TARGET_TICKER,
 )
 print(df_train.columns.tolist())
@@ -97,6 +99,7 @@ while not is_passed:
     initial_asset = 10000000
     final_asset = account_memory["account_value"].iloc[-1]
     total_return = ((final_asset - initial_asset) / initial_asset) * 100
+    print(f"목표 수익률: {TARGET_RETURN_CUTLINE:.1f}% 이상 | 현재 수익률: {total_return:.2f}%")
 
     if total_return >= TARGET_RETURN_CUTLINE:
         current_model.save(FINAL_MODEL_PATH)

@@ -11,6 +11,8 @@ CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
 
 # 종목 및 지표 정의
 TARGET_TICKER = ["005930"]
+TRAIN_START_DATE = "1900-01-01"
+TRAIN_END_DATE = "2026-01-01"
 custom_indicators = INDICATORS + PYKRX_FEATURES
 stock_dimension = len(TARGET_TICKER)
 state_space = 1 + 2 * stock_dimension + len(custom_indicators) * stock_dimension
@@ -30,8 +32,8 @@ env_kwargs = {
 
 print("과거 주가 및 매매동향 데이터 수집")
 df_train = load_market_data(
-    start_date="2024-01-01",
-    end_date="2026-01-01",
+    start_date=TRAIN_START_DATE,
+    end_date=TRAIN_END_DATE,
     ticker_list=TARGET_TICKER,
 )
 print(df_train.columns.tolist())
