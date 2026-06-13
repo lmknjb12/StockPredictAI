@@ -5,7 +5,7 @@ from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
 
-from data_utils import PYKRX_FEATURES, load_market_data
+from StockPredictAI.data_utils import PYKRX_FEATURES, load_market_data
 
 #환경설정
 TARGET_TICKER = ["005930"]
