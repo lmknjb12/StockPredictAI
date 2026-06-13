@@ -19,7 +19,7 @@ def run_py_program(python_path, script_path):
     return subprocess.Popen(
         [python_path, full_script_path],
         cwd=BASE,
-        creationflags=subprocess.CREATE_NO_WINDOW  # 검은 창 안 뜨게 설정
+        creationflags=subprocess.CREATE_NO_WINDOW  # 검은 창 안 뜨게 설정 보이게 하려면 CREATE_NEW_CONSOLE
     )
 
 print("🚀 [PY 버전] 자동매매 시스템 마스터 시작")
