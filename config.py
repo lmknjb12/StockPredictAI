@@ -1,9 +1,15 @@
 import os
+import sys
 
 # =========================
 # 프로젝트 기본 설정
 # =========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False):
+    # PyInstaller로 빌드된 경우 실행 파일의 경로를 사용
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    # 일반 파이썬 환경인 경우 스크립트의 경로를 사용
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 종목 설정 (삼성전자)
 TICKER = "A005930"
