@@ -40,7 +40,7 @@ BACKUP_DIR = os.path.join(MODELS_DIR, "model_backup")
 # 실행 환경 설정
 # =========================
 # 사용자 환경에 맞게 수정 필요
-PYTHON_32 = os.path.join(BASE_DIR, "creon_env", "Scripts", "python.exe")
+PYTHON_32 = os.path.join(BASE_DIR, "32env", "Scripts", "python.exe")
 PYTHON_64 = os.path.join(BASE_DIR, "64env", "Scripts", "python.exe")
 
 # 실행 간격 (초)
