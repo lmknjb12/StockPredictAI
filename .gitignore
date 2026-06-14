@@ -1,7 +1,4 @@
 .env
 __pycache__/
-venv/
-creon_env/
-64env/
 *.pyc
 .vscode/
