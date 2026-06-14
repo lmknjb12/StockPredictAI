@@ -4,3 +4,4 @@ venv/
 creon_env/
 64env/
 *.pyc
+.vscode/
