@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 .vscode/
+
+# Python virtual environments
+32env/
+64env/
+venv/
+.venv/
