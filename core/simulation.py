@@ -1,17 +1,21 @@
 import os
+import sys
 from stable_baselines3 import PPO
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
 
-from StockPredictAI.data_utils import PYKRX_FEATURES, load_market_data
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
+
+from config import CHECKPOINT_MODEL_PATH, INITIAL_MODEL_PATH, MODEL_PATH
+from core.data_utils import PYKRX_FEATURES, load_market_data
 
 #환경설정
 TARGET_TICKER = ["005930"]
-CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
-FINAL_MODEL_PATH = "final_ppo_model"
-INITIAL_MODEL_PATH = "initial_ppo_model"
+FINAL_MODEL_PATH = MODEL_PATH
 TRAIN_START_DATE = "1900-01-01"
 TRAIN_END_DATE = "2026-01-01"
 
@@ -104,7 +108,7 @@ while not is_passed:
     if total_return >= TARGET_RETURN_CUTLINE:
         current_model.save(FINAL_MODEL_PATH)
         current_model.save(CHECKPOINT_MODEL_PATH)
-        print(f"최종 모델이 '{FINAL_MODEL_PATH}.zip'으로 저장되었습니다.")
+        print(f"최종 모델이 '{FINAL_MODEL_PATH}'으로 저장되었습니다.")
         is_passed = True
     else:
         additional_steps = 10000 * attempt_count

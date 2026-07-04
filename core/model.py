@@ -2,12 +2,15 @@ from finrl.meta.preprocessor.preprocessors import FeatureEngineer
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.agents.stablebaselines3.models import DRLAgent
 from finrl.config import INDICATORS
+import os
+import sys
 
-from StockPredictAI.data_utils import PYKRX_FEATURES, load_market_data
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
-# 모델 저장 경로
-INITIAL_MODEL_PATH = "initial_ppo_model"
-CHECKPOINT_MODEL_PATH = "ppo_model_checkpoint"
+from config import CHECKPOINT_MODEL_PATH, INITIAL_MODEL_PATH
+from core.data_utils import PYKRX_FEATURES, load_market_data
 
 # 종목 및 지표 정의
 TARGET_TICKER = ["005930"]
